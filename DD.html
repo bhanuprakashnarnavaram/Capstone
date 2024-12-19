@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Main Page</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f7f7f7;
+      overflow: hidden;
+    }
+    h1 {
+      font-size: 36px;
+      color: #000407;
+      margin-bottom: 20px;
+      text-align: center;
+      text-shadow: 1px 1px 10px rgba(0, 0, 0, 0.1);
+    }
+    .container {
+      display: flex;
+      gap: 30px;
+    }
+    .box {
+      padding: 30px;
+      background-color: #ffffff;
+      border: 2px solid #eee;
+      border-radius: 15px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+    }
+    .box:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      background-color: #007bff;
+      color: #ffffff;
+    }
+    .box:active {
+      transform: translateY(2px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      background-color: #007bff;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Head-Gaze Controlled Interactive Interface with Automatic Selection</h1>
+
+  <div class="container">
+    <div class="box" onclick="window.location.href='alphabets.html'">Alphabets</div>
+    <div class="box" onclick="window.location.href='words.html'">Words</div>
+    <div class="box" onclick="window.location.href='numbers.html'">Numbers</div>
+  </div>
+
+</body>
+</html>

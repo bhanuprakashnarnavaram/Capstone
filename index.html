@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assistive Communication Web App</title>
+    <style>
+        /* General Styles */
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #ffffff;
+            font-family: 'Poppins', sans-serif;
+            color: #333;
+        }
+
+        h1 {
+            font-size: 48px;
+            color: #1e3a8a;
+            margin-bottom: 15px;
+            text-align: center;
+            text-shadow: 1px 1px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        p {
+            font-size: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            color: #555;
+            max-width: 800px;
+            line-height: 1.6;
+        }
+
+        /* Container for the boxes */
+        .container {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        /* Box styling */
+        .box {
+            padding: 30px;
+            width: 250px;
+            height: 150px;
+            background-color: #ffffff;
+            border: 2px solid #eee;
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 22px;
+            font-weight: bold;
+            text-align: center;
+            color: #007bff;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+        }
+
+        .box:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            background-color: #007bff;
+            color: #ffffff;
+        }
+
+        .box:active {
+            transform: translateY(2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            background-color: #007bff;
+        }
+
+        /* Footer section */
+        .footer {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            text-align: left;
+            font-size: 16px;
+            color: #777;
+        }
+
+        .footer h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .footer p {
+            margin: 0;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .box {
+                width: 90%;
+                height: auto;
+                font-size: 20px;
+            }
+
+            h1 {
+                font-size: 36px;
+            }
+
+            p {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Assistive Communication Web App</h1>
+    <p>Welcome to the Assistive Communication Web App! This platform allows individuals with speech or hearing impairments to communicate effectively by converting speech, sign language into text and Head-Gaze Controlled Interactive Interface.</p>
+
+    <div class="container">
+        <div class="box" onclick="goToPage('speech_text.html')">
+            Speech to Text & Text to Speech
+        </div>
+        <div class="box" onclick="goToPage('DD.html')">
+            Head Gaze
+        </div>
+        <div class="box" onclick="goToPage('Sign_language.html')">
+            Sign Language to Text
+        </div>
+    </div>
+
+    <script>
+        function goToPage(page) {
+            window.location.href = page;
+        }
+    </script>
+
+</body>
+</html>

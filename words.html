@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Words Selection</title>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils"></script>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f0f0f0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+      width: 60%;
+      text-align: center;
+    }
+    .grid-item {
+      padding: 20px;
+      background-color: white;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 24px;
+      font-weight: bold;
+      transition: background-color 0.2s, color 0.2s;
+      cursor: pointer;
+    }
+    .highlight {
+      background-color: #007bff;
+      color: white;
+    }
+    #output-container {
+      margin-top: 20px;
+      width: 60%;
+    }
+    #output-box {
+      width: 100%;
+      height: 50px;
+      font-size: 18px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    #play-button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 18px;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="grid" id="grid-container">
+    <!-- Words grid items will be dynamically inserted here -->
+  </div>
+  <div id="output-container">
+    <textarea id="output-box" readonly placeholder="Your sentence will appear here..."></textarea>
+    <button id="play-button">Play Text</button>
+  </div>
+
+  <script>
+    const predefinedWords = ['Hi', 'Hello', 'How are you?', "I'm fine", 'Thanks', 'Bye', 'Good morning', 'Good night', 'Welcome', 'Goodbye'];
+    const gridContainer = document.getElementById('grid-container');
+    const outputBox = document.getElementById('output-box');
+    let currentRow = 0;
+    let currentCol = 0;
+    const rows = 2; // Number of rows in the grid
+    const cols = 5; // Number of columns in the grid
+    let lastActivityTime = Date.now();
+
+    // Create the words grid
+    predefinedWords.forEach((word) => {
+      const div = document.createElement('div');
+      div.className = 'grid-item';
+      div.innerText = word;
+      gridContainer.appendChild(div);
+    });
+
+    const gridItems = document.querySelectorAll('.grid-item');
+
+    // Highlight the current item in the grid
+    function highlightCurrentItem() {
+      gridItems.forEach((item, index) => {
+        const row = Math.floor(index / cols);
+        const col = index % cols;
+        if (row === currentRow && col === currentCol) {
+          item.classList.add('highlight');
+        } else {
+          item.classList.remove('highlight');
+        }
+      });
+    }
+
+    // Function to select the item after a 3-second hold
+    function selectItem() {
+      const selectedItem = gridItems[currentRow * cols + currentCol].innerText;
+      outputBox.value += selectedItem;
+      const utterance = new SpeechSynthesisUtterance(selectedItem);
+      speechSynthesis.speak(utterance);
+      lastActivityTime = Date.now();
+    }
+
+    highlightCurrentItem();
+
+    // Variables for head movement detection
+    let lastX = null, lastY = null;
+    const moveThreshold = 0.05; // Threshold to detect significant head movement
+    let lastZ = null; // For forward head movement detection
+    const tiltThreshold = -0.1; // Threshold for detecting tilt movement
+
+    // Variables for head inactivity timer
+    let inactivityTimer = null;
+    const inactivityDuration = 3000; // 3 seconds inactivity duration
+
+    // Initialize MediaPipe FaceMesh
+    const videoElement = document.createElement('video');
+    videoElement.style.display = 'none';
+    document.body.appendChild(videoElement);
+
+    const faceMesh = new FaceMesh({
+      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
+    });
+
+    faceMesh.setOptions({
+      maxNumFaces: 1,
+      refineLandmarks: true,
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5,
+    });
+
+    faceMesh.onResults((results) => {
+      if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+        const landmarks = results.multiFaceLandmarks[0];
+        const nose = landmarks[1]; // Nose tip for tracking
+        const x = nose.x; // Normalized x-coordinate
+        const y = nose.y; // Normalized y-coordinate
+        const z = nose.z; // Depth (negative for closer)
+
+        // Detect horizontal movement (left/right)
+        if (lastX !== null) {
+          if (x - lastX > moveThreshold) {
+            // Move right
+            currentCol = (currentCol + 1) % cols;
+            highlightCurrentItem();
+            lastActivityTime = Date.now();
+          } else if (lastX - x > moveThreshold) {
+            // Move left
+            currentCol = (currentCol - 1 + cols) % cols;
+            highlightCurrentItem();
+            lastActivityTime = Date.now();
+          }
+        }
+
+        // Detect vertical movement (up/down)
+        if (lastY !== null) {
+          if (y - lastY > moveThreshold) {
+            // Move down
+            currentRow = (currentRow + 1) % rows;
+            highlightCurrentItem();
+            lastActivityTime = Date.now();
+          } else if (lastY - y > moveThreshold) {
+            // Move up
+            currentRow = (currentRow - 1 + rows) % rows;
+            highlightCurrentItem();
+            lastActivityTime = Date.now();
+          }
+        }
+
+        // Detect forward tilt (select)
+        if (lastZ !== null && z < tiltThreshold && z < lastZ) {
+          // Select the current item if it hasn't been selected already
+          selectItem();
+        }
+
+        // Update the last known positions
+        lastX = x;
+        lastY = y;
+        lastZ = z;
+
+        // Auto-select the item if the user has stopped moving
+        if (Date.now() - lastActivityTime > inactivityDuration) {
+          selectItem();
+        }
+      }
+    });
+
+    // Initialize the camera input
+    const camera = new Camera(videoElement, {
+      onFrame: async () => {
+        await faceMesh.send({ image: videoElement });
+      },
+      width: 640,
+      height: 480,
+    });
+    camera.start();
+
+    // Play the text from the description box
+    document.getElementById('play-button').addEventListener('click', () => {
+      const textToRead = outputBox.value;
+      const utterance = new SpeechSynthesisUtterance(textToRead);
+      speechSynthesis.speak(utterance);
+    });
+  </script>
+</body>
+</html>
